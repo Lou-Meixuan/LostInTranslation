@@ -7,12 +7,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.Arrays;
 
-
-// TODO Task D: Update the GUI for the program to align with UI shown in the README example.
-//            Currently, the program only uses the CanadaTranslator and the user has
-//            to manually enter the language code they want to use for the translation.
-//            See the examples package for some code snippets that may be useful when updating
-//            the GUI.
 public class GUI {
 
     public static void main(String[] args) {
@@ -31,36 +25,10 @@ public class GUI {
 
             // create the JList with the array of strings and set it to allow multiple
             // items to be selected at once.
-            JList<String> list = new JList<>(items);
-            list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-
-            // place the JList in a scroll pane so that it is scrollable in the UI
-            JScrollPane scrollPane = new JScrollPane(list);
+            JList<String> countryList = new JList<>(items);
+            countryList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+            JScrollPane scrollPane = new JScrollPane(countryList);
             countryPanel.add(scrollPane, 1);
-
-            list.addListSelectionListener(new ListSelectionListener() {
-
-                /**
-                 * Called whenever the value of the selection changes.
-                 *
-                 * @param e the event that characterizes the change.
-                 */
-                @Override
-                public void valueChanged(ListSelectionEvent e) {
-
-                    int[] indices = list.getSelectedIndices();
-                    String[] items = new String[indices.length];
-                    for (int i = 0; i < indices.length; i++) {
-                        items[i] = list.getModel().getElementAt(indices[i]);
-                    }
-
-                    JOptionPane.showMessageDialog(null, "User selected:" +
-                            System.lineSeparator() + Arrays.toString(items));
-
-                }
-            });
-
-
 
             JPanel languagePanel = new JPanel();
             languagePanel.add(new JLabel("Language:"));
@@ -69,61 +37,43 @@ public class GUI {
                 languageComboBox.addItem(Lconverter.fromLanguageCode(countryCode));
             }
             languagePanel.add(languageComboBox);
-            // add listener for when an item is selected.
-            languageComboBox.addItemListener(new ItemListener() {
-
-                /**
-                 * Invoked when an item has been selected or deselected by the user.
-                 * The code written for this method performs the operations
-                 * that need to occur when an item is selected (or deselected).
-                 *
-                 * @param e the event to be processed
-                 */
-                @Override
-                public void itemStateChanged(ItemEvent e) {
-
-                    if (e.getStateChange() == ItemEvent.SELECTED) {
-                        String country = languageComboBox.getSelectedItem().toString();
-                        JOptionPane.showMessageDialog(null, "user selected " + country + "!");
-                    }
-                }
-
-
-            });
 
             JPanel buttonPanel = new JPanel();
-            JButton submit = new JButton("Submit");
-            buttonPanel.add(submit);
-
             JLabel resultLabelText = new JLabel("Translation:");
             buttonPanel.add(resultLabelText);
             JLabel resultLabel = new JLabel("\t\t\t\t\t\t\t");
             buttonPanel.add(resultLabel);
 
 
-            // adding listener for when the user clicks the submit button
-            submit.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    String language =  languageComboBox.getSelectedItem().toString();
-                    String country = list.getSelectedValue().toString();
+            Runnable updateTranslation = () -> {
+                String selectedLanguage = (String) languageComboBox.getSelectedItem();
+                String selectedCountry = countryList.getSelectedValue();
 
-                    // for now, just using our simple translator, but
-                    // we'll need to use the real JSON version later.
-                    Translator translator = new JSONTranslator();
-
-                    String result = translator.translate(Cconverter.fromCountry(country), Lconverter.fromLanguage(language));
-                    if (result == null) {
-                        result = "no translation found!";
-                    }
-                    System.out.println(language);
-                    System.out.println(country);
-                    System.out.println(Cconverter.fromCountry(country));
-                    System.out.println(Lconverter.fromLanguage(language));
-                    resultLabel.setText(result);
-
+                if (selectedLanguage == null || selectedCountry == null) {
+                    resultLabel.setText("");
+                    return;
                 }
 
+                String countryCode = Cconverter.fromCountry(selectedCountry);
+                String languageCode = Lconverter.fromLanguage(selectedLanguage);
+                String result = translator.translate(countryCode, languageCode);
+
+                if (result == null) {
+                    result = "no translation found!";
+                }
+                resultLabel.setText(result);
+            };
+
+            languageComboBox.addItemListener(e -> {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    updateTranslation.run();
+                }
+            });
+
+            countryList.addListSelectionListener(e -> {
+                if (!e.getValueIsAdjusting()) {
+                    updateTranslation.run();
+                }
             });
 
             JPanel mainPanel = new JPanel();
