@@ -3,6 +3,7 @@ package translation;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import java.awt.*;
 import java.awt.event.*;
 
 
@@ -49,6 +50,7 @@ public class GUI {
 
             // country selection panel
             JPanel countryPanel = new JPanel();
+            countryPanel.setLayout(new GridLayout(1, 0));
 
             JList<String> countryList = new JList<>(countries);
             countryList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
