@@ -12,8 +12,8 @@ public class GUI {
             CountryCodeConverter Cconverter = new CountryCodeConverter("country-codes.txt");
 
             JPanel countryPanel = new JPanel();
-            countryPanel.setLayout(new GridLayout(0, 2));
-            countryPanel.add(new JLabel("Country:"), 0);
+            countryPanel.setLayout(new GridLayout(1,0));
+//            countryPanel.add(new JLabel("Country:"), 0);
             String[] items = new String[translator.getCountryCodes().size()];
             int i = 0;
             for(String countryCode : translator.getCountryCodes()) {
@@ -23,9 +23,9 @@ public class GUI {
             // create the JList with the array of strings and set it to allow multiple
             // items to be selected at once.
             JList<String> countryList = new JList<>(items);
-            countryList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+            countryList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             JScrollPane scrollPane = new JScrollPane(countryList);
-            countryPanel.add(scrollPane, 1);
+            countryPanel.add(scrollPane, 0);
 
             JPanel languagePanel = new JPanel();
             languagePanel.add(new JLabel("Language:"));
@@ -76,8 +76,8 @@ public class GUI {
             JPanel mainPanel = new JPanel();
             mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
             mainPanel.add(languagePanel);
-            mainPanel.add(countryPanel);
             mainPanel.add(buttonPanel);
+            mainPanel.add(countryPanel);
 
             JFrame frame = new JFrame("Country Name Translator");
             frame.setContentPane(mainPanel);
